@@ -78,8 +78,18 @@ jobs:
           path: dist
           merge-multiple: true
 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish to PyPI
+        if: env.HAVE_PYPI_TOKEN != ''
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+        env:
+          HAVE_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}

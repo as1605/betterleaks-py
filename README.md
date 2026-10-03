@@ -14,15 +14,24 @@ Python bindings for [Betterleaks](https://github.com/betterleaks/betterleaks), t
 
 ## Installation
 
+### Option 1: Install from GitHub (requires Go >= 1.25)
+
 ```bash
 pip install git+https://github.com/as1605/betterleaks-py.git
 ```
 
-### Building from Source
+> **Note**: Installing directly from git builds the native Go shared library for your system. Ensure Go (>= 1.25) is installed (`brew install go` on macOS, `sudo apt install golang` on Linux).
 
-Prerequisites:
-- Python >= 3.8
-- Go >= 1.25 (with CGO enabled)
+### Option 2: Pre-built Binary Wheels (No Go required)
+
+Pre-compiled binary wheels for macOS, Linux, and Windows are available under [GitHub Releases](https://github.com/as1605/betterleaks-py/releases). You can install directly without having Go or C compilers installed:
+
+```bash
+# Example for macOS Apple Silicon:
+pip install https://github.com/as1605/betterleaks-py/releases/download/v2.0.0-rc.1/betterleaks-2.0.0rc1-cp39-cp39-macosx_26_0_universal2.whl
+```
+
+### Option 3: Building from Source Locally
 
 ```bash
 git clone --recurse-submodules https://github.com/as1605/betterleaks-py.git
