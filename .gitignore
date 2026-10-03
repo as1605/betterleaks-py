@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# Go compiled binaries and libraries
+wrapper/libbetterleaks.*
+src/betterleaks/libbetterleaks.dylib
+src/betterleaks/libbetterleaks.so
+src/betterleaks/libbetterleaks.dll
+src/betterleaks/libbetterleaks.h
+
+# Testing & Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS
+.DS_Store
+*.swp
