@@ -13,11 +13,19 @@ permissions:
 
 jobs:
   build_wheels:
-    name: Build wheels on ${{ matrix.os }}
+    name: Build wheels on ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
+        include:
+          - name: macos-arm64
+            os: macos-latest
+          - name: macos-x86_64
+            os: macos-13
+          - name: linux-x86_64
+            os: ubuntu-latest
+          - name: windows-x86_64
+            os: windows-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -60,7 +68,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: cibw-wheels-${{ matrix.name }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
