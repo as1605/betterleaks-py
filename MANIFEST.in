@@ -1,0 +1,8 @@
+include README.md
+include LICENSE
+include pyproject.toml
+include setup.py
+
+recursive-include wrapper *.go *.mod *.sum
+recursive-include upstream *
+recursive-include src/betterleaks *.py *.so *.dylib *.dll *.h
