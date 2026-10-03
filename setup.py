@@ -52,36 +52,6 @@ def find_go_binary() -> Optional[str]:
     return None
 
 
-def download_prebuilt_library(target_file: str) -> bool:
-    """Attempt to download precompiled library from GitHub Releases if Go is unavailable."""
-    system = platform.system().lower()
-    machine = platform.machine().lower()
-    if machine in ("x86_64", "amd64"):
-        arch = "amd64"
-    elif machine in ("arm64", "aarch64"):
-        arch = "arm64"
-    else:
-        return False
-
-    lib_name = get_lib_filename()
-    version = "2.0.0rc1"
-    url = f"https://github.com/as1605/betterleaks-py/releases/download/v{version}/libbetterleaks-{system}-{arch}-{lib_name}"
-
-    try:
-        print(f"--> Go compiler not found. Attempting to download pre-built library from:\n    {url}")
-        req = urllib.request.Request(url, headers={"User-Agent": "betterleaks-py-installer"})
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            if resp.status == 200:
-                with open(target_file, "wb") as f:
-                    f.write(resp.read())
-                print(f"--> Successfully downloaded pre-built library to {target_file}")
-                return True
-    except Exception as e:
-        print(f"--> Could not download pre-built binary: {e}")
-
-    return False
-
-
 def build_go_shared_library(target_dir: str) -> str:
     os.makedirs(target_dir, exist_ok=True)
     out_lib = os.path.join(target_dir, get_lib_filename())
@@ -92,10 +62,6 @@ def build_go_shared_library(target_dir: str) -> str:
 
     go_bin = find_go_binary()
     if not go_bin:
-        # Try downloading precompiled binary first
-        if download_prebuilt_library(out_lib):
-            return out_lib
-
         err_msg = """
 ================================================================================
 BETTERLEAKS INSTALLATION ERROR: Go compiler ('go') not found!
@@ -111,8 +77,8 @@ Please install Go on your system:
 If Go is already installed, ensure its binary directory is in your PATH.
 (Common locations: /opt/homebrew/bin, /usr/local/bin, /usr/local/go/bin)
 
-Pre-built binary wheels (which do not require Go) are available at:
-  https://github.com/as1605/betterleaks-py/releases
+Alternatively, install a pre-compiled binary wheel (NO Go required):
+  pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.1 betterleaks
 ================================================================================
 """
         print(err_msg, file=sys.stderr)

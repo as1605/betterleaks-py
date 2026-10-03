@@ -27,14 +27,10 @@ Pre-compiled binary wheels for **Linux** (`x86_64`, `aarch64`), **macOS** (Apple
 You can install directly without having Go or C compilers installed:
 
 ```bash
-# Direct install from the latest release:
-pip install "https://github.com/as1605/betterleaks-py/releases/download/v2.0.0-rc.1/betterleaks-2.0.0rc1-cp39-cp39-macosx_26_0_universal2.whl"
-```
-
-Or install using `--find-links`:
-```bash
 pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.1 betterleaks
 ```
+
+You can also browse and download wheels directly from the [v2.0.0-rc.1 Release Page](https://github.com/as1605/betterleaks-py/releases/tag/v2.0.0-rc.1).
 
 ---
 
