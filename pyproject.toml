@@ -8,7 +8,7 @@ version = "2.0.0rc1"
 description = "Python bindings for Betterleaks, the high-performance secret and credential detection engine."
 readme = "README.md"
 requires-python = ">=3.8"
-license = "MIT"
+license = { text = "MIT" }
 authors = [
     { name = "Betterleaks Contributors" }
 ]
