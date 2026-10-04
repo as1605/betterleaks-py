@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "betterleaks"
-version = "2.0.0rc1"
+version = "2.0.0rc2"
 description = "Python bindings for Betterleaks, the high-performance secret and credential detection engine."
 readme = "README.md"
 requires-python = ">=3.8"

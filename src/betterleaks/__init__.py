@@ -7,8 +7,8 @@ from typing import List, Optional
 from betterleaks.models import BetterleaksError, Finding, Location, Match
 from betterleaks._lib import get_binding
 
-__version__ = "2.0.0rc1"
-__upstream_version__ = "2.0.0-rc.1"
+__version__ = "2.0.0rc2"
+__upstream_version__ = "2.0.0-rc.2"
 __all__ = [
     "scan_string",
     "scan_file",
