@@ -76,20 +76,8 @@ def build_go_shared_library(target_dir: str) -> str:
     ]
     env = os.environ.copy()
     env["CGO_ENABLED"] = "1"
-    
-    # Ensure correct Go architecture during cross-compilation (e.g., cibuildwheel on macOS)
-    machine = platform.machine().lower()
-    archflags = os.environ.get("ARCHFLAGS", "").lower()
-    if "-arch x86_64" in archflags:
-        env["GOARCH"] = "amd64"
-    elif "-arch arm64" in archflags:
-        env["GOARCH"] = "arm64"
-    elif machine in ("aarch64", "arm64"):
-        env["GOARCH"] = "arm64"
-    else:
-        env["GOARCH"] = "amd64"
 
-    print(f"--> Compiling Go shared library for {env.get('GOARCH', 'default')}: {' '.join(cmd)}")
+    print(f"--> Compiling Go shared library: {' '.join(cmd)} in {wrapper_dir}")
     try:
         subprocess.check_call(cmd, cwd=wrapper_dir, env=env)
     except subprocess.CalledProcessError as e:
@@ -105,7 +93,7 @@ def download_fallback_library(target_dir: str) -> str:
     import zipfile
     
     out_lib = os.path.join(target_dir, get_lib_filename())
-    version = "2.0.0-rc.3"  # Match __upstream_version__
+    version = "2.0.0-rc.4"  # Match __upstream_version__
     system = platform.system().lower()
     machine = platform.machine().lower()
     
@@ -188,7 +176,7 @@ If Go is already installed, ensure its binary directory is in your PATH.
 (Common locations: /opt/homebrew/bin, /usr/local/bin, /usr/local/go/bin)
 
 Alternatively, install a pre-compiled binary wheel manually:
-  pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.3 betterleaks
+  pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.4 betterleaks
 ================================================================================
 """
         print(err_msg, file=sys.stderr)

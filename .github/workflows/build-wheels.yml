@@ -18,8 +18,14 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: macos
+          - name: macos-arm64
             os: macos-latest
+            cibw_arch: arm64
+            goarch: arm64
+          - name: macos-x86_64
+            os: macos-latest
+            cibw_arch: x86_64
+            goarch: amd64
           - name: linux-x86_64
             os: ubuntu-latest
           - name: windows-x86_64
@@ -54,10 +60,10 @@ jobs:
             /usr/local/go/bin/go version'
           CIBW_ENVIRONMENT_LINUX: 'PATH="/usr/local/go/bin:$PATH"'
 
-          # macOS: build both arm64 and x86_64 on Apple Silicon via Rosetta 2
-          CIBW_ARCHS_MACOS: "arm64 x86_64"
+          # macOS: build specified architecture on Apple Silicon
+          CIBW_ARCHS_MACOS: ${{ matrix.cibw_arch }}
           CIBW_BEFORE_ALL_MACOS: "go version"
-          CIBW_ENVIRONMENT_MACOS: 'CGO_ENABLED=1'
+          CIBW_ENVIRONMENT_MACOS: 'CGO_ENABLED=1 GOARCH=${{ matrix.goarch }}'
 
           # Windows
           CIBW_BEFORE_ALL_WINDOWS: "go version"
