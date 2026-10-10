@@ -107,15 +107,12 @@ jobs:
           path: dist/*.tar.gz
 
   publish:
-    name: Publish to PyPI and GitHub Releases
+    name: Publish to GitHub Releases
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     
-    # Required for OIDC Trusted Publishing
-    environment: pypi
     permissions:
-      id-token: write   # For PyPI OIDC Attestations
       contents: write   # For GitHub Releases (create release & upload assets)
 
     steps:
@@ -132,8 +129,3 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@76f52e157673a5dde997281b409722363be37b75 # v1.12.4
-        with:
-          attestations: true
