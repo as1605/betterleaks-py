@@ -21,6 +21,54 @@ def get_lib_filename() -> str:
         return "libbetterleaks.so"
 
 
+def get_cli_filename() -> str:
+    system = platform.system().lower()
+    if system == "windows":
+        return "betterleaks.exe"
+    else:
+        return "betterleaks"
+
+
+def build_go_cli_binary(target_dir: str) -> str:
+    bin_dir = os.path.join(target_dir, "bin")
+    os.makedirs(bin_dir, exist_ok=True)
+    out_bin = os.path.join(bin_dir, get_cli_filename())
+
+    # If binary already exists, use it
+    if os.path.isfile(out_bin) and os.path.getsize(out_bin) > 0:
+        return out_bin
+
+    go_bin = find_go_binary()
+    if not go_bin:
+        print("--> Go compiler not found for building CLI. Skipping...", file=sys.stderr)
+        return ""
+
+    upstream_mod = os.path.abspath(os.path.join(os.path.dirname(__file__), "upstream", "go.mod"))
+    if not os.path.exists(upstream_mod):
+        print("--> Upstream submodule missing for building CLI. Skipping...", file=sys.stderr)
+        return ""
+
+    upstream_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "upstream"))
+    cmd = [
+        go_bin,
+        "build",
+        "-o",
+        out_bin,
+        "main.go",
+    ]
+    env = os.environ.copy()
+    env["CGO_ENABLED"] = "0"
+
+    print(f"--> Compiling Go CLI binary: {' '.join(cmd)} in {upstream_dir}")
+    try:
+        subprocess.check_call(cmd, cwd=upstream_dir, env=env)
+    except subprocess.CalledProcessError as e:
+        print(f"\\nERROR: Failed to compile Go CLI binary: {e}", file=sys.stderr)
+        raise SystemExit(e.returncode)
+
+    return out_bin
+
+
 def find_go_binary() -> Optional[str]:
     """Search for the go compiler in PATH and standard system installation paths."""
     go_bin = shutil.which("go")
@@ -196,10 +244,13 @@ class CustomBuildPy(build_py):
     def run(self):
         target_dir = os.path.join(self.build_lib, "betterleaks")
         build_go_shared_library(target_dir)
+        build_go_cli_binary(target_dir)
 
         local_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "src", "betterleaks"))
         if not os.path.exists(os.path.join(local_dir, get_lib_filename())):
             build_go_shared_library(local_dir)
+        if not os.path.exists(os.path.join(local_dir, "bin", get_cli_filename())):
+            build_go_cli_binary(local_dir)
 
         super().run()
 
@@ -208,6 +259,7 @@ class CustomDevelop(develop):
     def run(self):
         local_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "src", "betterleaks"))
         build_go_shared_library(local_dir)
+        build_go_cli_binary(local_dir)
         super().run()
 
 
@@ -230,6 +282,7 @@ setup(
             "*.dll",
             "*.h",
             "py.typed",
+            "bin/*",
         ],
     },
 )
