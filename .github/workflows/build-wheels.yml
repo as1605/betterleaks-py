@@ -8,13 +8,18 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
 
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
     strategy:
       matrix:
         include:
@@ -32,19 +37,21 @@ jobs:
             os: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: recursive
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: '>=1.25'
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'pyproject.toml'
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.21.3
@@ -52,7 +59,6 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
-          # Install Go inside Linux manylinux container
           CIBW_BEFORE_ALL_LINUX: >
             sh -c 'ARCH=$(uname -m);
             [ "$ARCH" = "x86_64" ] && GOARCH="amd64" || GOARCH="arm64";
@@ -60,23 +66,20 @@ jobs:
             /usr/local/go/bin/go version'
           CIBW_ENVIRONMENT_LINUX: 'PATH="/usr/local/go/bin:$PATH"'
 
-          # macOS: build specified architecture on Apple Silicon
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_arch }}
           CIBW_BEFORE_ALL_MACOS: "go version"
           CIBW_ENVIRONMENT_MACOS: 'CGO_ENABLED=1 GOARCH=${{ matrix.goarch }}'
 
-          # Windows
           CIBW_BEFORE_ALL_WINDOWS: "go version"
           CIBW_ENVIRONMENT_WINDOWS: 'CGO_ENABLED=1'
 
-          # Python versions to target (3.8 is EOL since Oct 2024)
-          CIBW_SKIP: "cp36-* cp37-* cp38-* pp* *-win32 *-manylinux_i686 *musllinux*"
+          # Notice we removed cp38-* to restore Python 3.8 support
+          CIBW_SKIP: "cp36-* cp37-* pp* *-win32 *-manylinux_i686 *musllinux*"
           CIBW_TEST_REQUIRES: "pytest"
           CIBW_TEST_COMMAND: "pytest {package}/tests"
-          # Skip tests for cross-compiled x86_64 on arm64 macOS host
           CIBW_TEST_SKIP: "*-macosx_x86_64"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: cibw-wheels-${{ matrix.name }}
           path: ./wheelhouse/*.whl
@@ -84,19 +87,21 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           submodules: recursive
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
         with:
           python-version: '3.11'
 
       - name: Build sdist
         run: pipx run build --sdist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:
           name: cibw-sdist
           path: dist/*.tar.gz
@@ -106,15 +111,22 @@ jobs:
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
+    
+    # Required for OIDC Trusted Publishing
+    environment: pypi
+    permissions:
+      id-token: write   # For PyPI OIDC Attestations
+      contents: write   # For GitHub Releases (create release & upload assets)
+
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@cc203385981b70ca67e1ab388640d18d72914e27 # v4.1.9
         with:
           pattern: cibw-*
           path: dist
           merge-multiple: true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@c95fe1489396fe8a9ec87453c663f532452554ff # v2.2.1
         with:
           files: dist/*
           generate_release_notes: true
@@ -122,10 +134,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
-        if: env.HAVE_PYPI_TOKEN != ''
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@76f52e157673a5dde997281b409722363be37b75 # v1.12.4
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
-        env:
-          HAVE_PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+          attestations: true

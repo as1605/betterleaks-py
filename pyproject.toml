@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "betterleaks"
-version = "2.0.0rc4"
+dynamic = ["version"]
 description = "Python bindings for Betterleaks, the high-performance secret and credential detection engine."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -43,6 +43,11 @@ dev = [
 [project.urls]
 Homepage = "https://github.com/as1605/betterleaks-py"
 Repository = "https://github.com/as1605/betterleaks-py"
+Issues = "https://github.com/as1605/betterleaks-py/issues"
+Changelog = "https://github.com/as1605/betterleaks-py/releases"
+
+[tool.setuptools.dynamic]
+version = {attr = "betterleaks.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]

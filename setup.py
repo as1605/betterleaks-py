@@ -65,6 +65,12 @@ def build_go_shared_library(target_dir: str) -> str:
         print("--> Go compiler not found. Attempting to download pre-built library...", file=sys.stderr)
         return download_fallback_library(target_dir)
 
+    upstream_mod = os.path.abspath(os.path.join(os.path.dirname(__file__), "upstream", "go.mod"))
+    if not os.path.exists(upstream_mod):
+        print("--> Upstream submodule missing (go.mod not found).", file=sys.stderr)
+        print("--> Attempting to download pre-built library instead...", file=sys.stderr)
+        return download_fallback_library(target_dir)
+
     wrapper_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "wrapper"))
     cmd = [
         go_bin,
@@ -88,13 +94,19 @@ def build_go_shared_library(target_dir: str) -> str:
 
 def download_fallback_library(target_dir: str) -> str:
     import json
-    import ssl
     import tempfile
     import zipfile
     
-    out_lib = os.path.join(target_dir, get_lib_filename())
-    version = "2.0.0-rc.4"  # Match __upstream_version__
-    system = platform.system().lower()
+    version = "2.0.0-rc.4"
+    try:
+        init_path = os.path.join(os.path.dirname(__file__), "src", "betterleaks", "__init__.py")
+        with open(init_path, "r") as f:
+            for line in f:
+                if line.startswith("__upstream_version__"):
+                    version = line.split("=")[1].strip().strip('"\'')
+                    break
+    except Exception:
+        pass
     machine = platform.machine().lower()
     
     if system == "darwin":
@@ -112,12 +124,8 @@ def download_fallback_library(target_dir: str) -> str:
     api_url = f"https://api.github.com/repos/as1605/betterleaks-py/releases/tags/v{version}"
     
     try:
-        ctx = ssl.create_default_context()
-        ctx.check_hostname = False
-        ctx.verify_mode = ssl.CERT_NONE
-        
         req = urllib.request.Request(api_url)
-        with urllib.request.urlopen(req, context=ctx) as response:
+        with urllib.request.urlopen(req, timeout=30) as response:
             release_data = json.loads(response.read())
             
         download_url = None
@@ -136,7 +144,7 @@ def download_fallback_library(target_dir: str) -> str:
             
         try:
             req = urllib.request.Request(download_url)
-            with urllib.request.urlopen(req, context=ctx) as response, open(whl_path, "wb") as f:
+            with urllib.request.urlopen(req, timeout=30) as response, open(whl_path, "wb") as f:
                 f.write(response.read())
                 
             with zipfile.ZipFile(whl_path) as z:
@@ -220,6 +228,7 @@ setup(
             "*.dylib",
             "*.dll",
             "*.h",
+            "py.typed",
         ],
     },
 )
