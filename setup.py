@@ -21,6 +21,19 @@ def get_lib_filename() -> str:
         return "libbetterleaks.so"
 
 
+def get_upstream_version() -> str:
+    version = "2.0.0-rc.4"
+    try:
+        init_path = os.path.join(os.path.dirname(__file__), "src", "betterleaks", "__init__.py")
+        with open(init_path, "r") as f:
+            for line in f:
+                if line.startswith("__upstream_version__"):
+                    version = line.split("=")[1].strip().strip("\"'")
+                    break
+    except Exception:
+        pass
+    return version
+
 def get_cli_filename() -> str:
     system = platform.system().lower()
     if system == "windows":
@@ -49,12 +62,17 @@ def build_go_cli_binary(target_dir: str) -> str:
         return ""
 
     upstream_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "upstream"))
+    
+    upstream_version = get_upstream_version()
+    ldflags = f"-X=github.com/betterleaks/betterleaks/v2/version.Version={upstream_version}"
     cmd = [
         go_bin,
         "build",
+        "-ldflags",
+        ldflags,
         "-o",
         out_bin,
-        "main.go",
+        ".",
     ]
     env = os.environ.copy()
     env["CGO_ENABLED"] = "0"
@@ -145,16 +163,7 @@ def download_fallback_library(target_dir: str) -> str:
     import tempfile
     import zipfile
     
-    version = "2.0.0-rc.4"
-    try:
-        init_path = os.path.join(os.path.dirname(__file__), "src", "betterleaks", "__init__.py")
-        with open(init_path, "r") as f:
-            for line in f:
-                if line.startswith("__upstream_version__"):
-                    version = line.split("=")[1].strip().strip('"\'')
-                    break
-    except Exception:
-        pass
+    version = get_upstream_version()
     machine = platform.machine().lower()
     system = platform.system().lower()
     
