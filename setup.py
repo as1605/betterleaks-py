@@ -166,6 +166,7 @@ def download_fallback_library(target_dir: str) -> str:
     version = get_upstream_version()
     machine = platform.machine().lower()
     system = platform.system().lower()
+    out_lib = os.path.join(target_dir, get_lib_filename())
     
     if system == "darwin":
         os_tag = "macosx"
@@ -207,16 +208,27 @@ def download_fallback_library(target_dir: str) -> str:
                 
             with zipfile.ZipFile(whl_path) as z:
                 lib_name = None
+                bin_name = None
                 for name in z.namelist():
                     if name.startswith("betterleaks/libbetterleaks.") and not name.endswith(".h"):
                         lib_name = name
-                        break
+                    elif name.startswith("betterleaks/bin/betterleaks"):
+                        bin_name = name
                 
                 if not lib_name:
                     raise RuntimeError("Could not find libbetterleaks shared library in downloaded wheel")
                     
                 with z.open(lib_name) as source, open(out_lib, "wb") as target:
                     target.write(source.read())
+                    
+                if bin_name:
+                    bin_dir = os.path.join(target_dir, "bin")
+                    os.makedirs(bin_dir, exist_ok=True)
+                    out_bin = os.path.join(bin_dir, get_cli_filename())
+                    with z.open(bin_name) as source, open(out_bin, "wb") as target:
+                        target.write(source.read())
+                    if sys.platform != "win32":
+                        os.chmod(out_bin, 0o755)
                     
             print(f"--> Successfully installed fallback library to {out_lib}")
             return out_lib
