@@ -5,6 +5,7 @@ import json
 import os
 import platform
 from typing import Any, Dict, Optional
+
 from betterleaks.models import BetterleaksError
 
 
@@ -81,7 +82,9 @@ class _BetterleaksBinding:
         finally:
             self._lib.FreeMemory(ptr)
 
-    def scan_string(self, content: str, config_path: Optional[str] = None) -> Dict[str, Any]:
+    def scan_string(
+        self, content: str, config_path: Optional[str] = None
+    ) -> Dict[str, Any]:
         encoded_content = content.encode("utf-8")
         if config_path:
             encoded_cfg = config_path.encode("utf-8")
@@ -90,7 +93,9 @@ class _BetterleaksBinding:
             ptr = self._lib.ScanStringCGO(encoded_content)
         return self._call_and_parse(ptr)
 
-    def scan_file(self, file_path: str, config_path: Optional[str] = None) -> Dict[str, Any]:
+    def scan_file(
+        self, file_path: str, config_path: Optional[str] = None
+    ) -> Dict[str, Any]:
         encoded_file = file_path.encode("utf-8")
         encoded_cfg = config_path.encode("utf-8") if config_path else None
         ptr = self._lib.ScanFileCGO(encoded_file, encoded_cfg)

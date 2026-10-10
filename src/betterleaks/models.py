@@ -1,13 +1,13 @@
 """Data models for betterleaks scan findings."""
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 
 class BetterleaksError(Exception):
     """Exception raised for Betterleaks scanning or runtime errors."""
-    pass
 
 
 @dataclass

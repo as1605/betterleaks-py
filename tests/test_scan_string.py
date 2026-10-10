@@ -1,6 +1,7 @@
 import pytest
+
 import betterleaks
-from betterleaks import Finding, Match, Location, BetterleaksError
+from betterleaks import BetterleaksError, Finding
 
 # Construct tokens dynamically so repository static push protection is not triggered
 GH_TOKEN = "gh" + "p_aB3dE5fG7hI9jK1mN3pQ5rS7tU9vW1xY3zA5"
@@ -66,7 +67,9 @@ def test_scan_string_multiline_positions():
 
 def test_scan_string_invalid_config():
     with pytest.raises(BetterleaksError):
-        betterleaks.scan_string("test", config_path="/non/existent/path/betterleaks.toml")
+        betterleaks.scan_string(
+            "test", config_path="/non/existent/path/betterleaks.toml"
+        )
 
 
 def test_scan_string_slack_token():

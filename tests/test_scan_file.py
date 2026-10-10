@@ -1,5 +1,7 @@
 import tempfile
+
 import pytest
+
 import betterleaks
 from betterleaks import BetterleaksError
 
@@ -21,6 +23,7 @@ def test_scan_file_with_secret():
         assert findings[0].location.start_line == 2
     finally:
         import os
+
         if os.path.exists(filename):
             os.remove(filename)
 
@@ -36,6 +39,7 @@ def test_scan_file_clean():
         assert findings == []
     finally:
         import os
+
         if os.path.exists(filename):
             os.remove(filename)
 

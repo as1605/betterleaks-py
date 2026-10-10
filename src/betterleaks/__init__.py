@@ -4,20 +4,21 @@ High-performance secret and credential detection engine powered by Go.
 """
 
 from typing import List, Optional
-from betterleaks.models import BetterleaksError, Finding, Location, Match
+
 from betterleaks._lib import get_binding
+from betterleaks.models import BetterleaksError, Finding, Location, Match
 
 __version__ = "2.0.0rc4"
 __upstream_version__ = "2.0.0-rc.4"
 __all__ = [
-    "scan_string",
-    "scan_file",
-    "Finding",
-    "Match",
-    "Location",
     "BetterleaksError",
-    "__version__",
+    "Finding",
+    "Location",
+    "Match",
     "__upstream_version__",
+    "__version__",
+    "scan_file",
+    "scan_string",
 ]
 
 
