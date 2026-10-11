@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 
 class BetterleaksError(Exception):
@@ -70,7 +71,7 @@ class Location:
 
 
 @dataclass
-class Finding:
+class Finding(Mapping):
     rule_id: str
     description: str
     confidence: str
@@ -78,6 +79,10 @@ class Finding:
     location: Location
     tags: List[str] = field(default_factory=list)
     raw: Dict[str, Any] = field(default_factory=dict)
+
+    _EXCLUDED_KEYS: ClassVar[frozenset[str]] = frozenset(
+        {"from_dict", "to_dict", "raw"}
+    )
 
     @property
     def secret(self) -> str:
@@ -131,14 +136,38 @@ class Finding:
             return self.secret
         if key == "file":
             return self.file
-        if hasattr(self, key):
+        if (
+            hasattr(self, key)
+            and not key.startswith("_")
+            and key not in self._EXCLUDED_KEYS
+        ):
             val = getattr(self, key)
-            if isinstance(val, (Match, Location)):
-                return val.to_dict()
-            return val
+            if not callable(val):
+                if isinstance(val, (Match, Location)):
+                    return val.to_dict()
+                return val
         if key in self.raw:
             return self.raw[key]
         raise KeyError(key)
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self.to_dict())
+
+    def __len__(self) -> int:
+        return len(self.to_dict())
+
+    def __contains__(self, key: object) -> bool:
+        if not isinstance(key, str):
+            return False
+        if key in ("secret", "file"):
+            return True
+        if (
+            hasattr(self, key)
+            and not key.startswith("_")
+            and key not in self._EXCLUDED_KEYS
+        ):
+            return not callable(getattr(self, key))
+        return key in self.raw
 
     def get(self, key: str, default: Any = None) -> Any:
         try:

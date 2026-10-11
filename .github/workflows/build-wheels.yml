@@ -33,6 +33,10 @@ jobs:
             goarch: amd64
           - name: linux-x86_64
             os: ubuntu-latest
+            cibw_arch: x86_64
+          - name: linux-aarch64
+            os: ubuntu-24.04-arm
+            cibw_arch: aarch64
           - name: windows-x86_64
             os: windows-latest
 
@@ -59,6 +63,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
+          CIBW_ARCHS_LINUX: ${{ matrix.cibw_arch }}
           CIBW_BEFORE_ALL_LINUX: >
             sh -c 'ARCH=$(uname -m);
             [ "$ARCH" = "x86_64" ] && GOARCH="amd64" || GOARCH="arm64";
@@ -100,6 +105,9 @@ jobs:
 
       - name: Build sdist
         run: pipx run build --sdist
+
+      - name: Check package metadata with twine
+        run: pipx run twine check --strict dist/*
 
       - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:

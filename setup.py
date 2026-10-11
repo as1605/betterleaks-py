@@ -108,6 +108,7 @@ def download_fallback_library(target_dir: str) -> str:
     except Exception:
         pass
     machine = platform.machine().lower()
+    system = platform.system().lower()
     
     if system == "darwin":
         os_tag = "macosx"

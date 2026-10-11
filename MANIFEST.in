@@ -5,4 +5,6 @@ include setup.py
 
 recursive-include wrapper *.go *.mod *.sum
 recursive-include upstream *
-recursive-include src/betterleaks *.py *.so *.dylib *.dll *.h
+recursive-include src/betterleaks *.py *.h py.typed
+global-exclude .git*
+global-exclude *.py[cod]
