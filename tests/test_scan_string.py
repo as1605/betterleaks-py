@@ -1,3 +1,5 @@
+from collections.abc import Mapping
+
 import pytest
 
 import betterleaks
@@ -42,11 +44,29 @@ def test_scan_string_dict_access():
     assert len(findings) == 1
     f = findings[0]
 
-    # Test dictionary-style access
+    # Test dictionary-style access and Mapping protocol
+    assert isinstance(f, Mapping)
     assert f["rule_id"] == "github-pat"
     assert f["secret"] == GH_TOKEN
     assert f.get("rule_id") == "github-pat"
     assert f.get("non_existent", "default") == "default"
+    assert "rule_id" in f
+    assert "secret" in f
+    assert "non_existent" not in f
+    assert len(f) > 0
+    assert "rule_id" in list(f)
+
+    # Callable methods must not be accessible via key access
+    with pytest.raises(KeyError):
+        _ = f["from_dict"]
+    with pytest.raises(KeyError):
+        _ = f["to_dict"]
+
+    # Test dict constructor conversion
+    constructed_dict = dict(f)
+    assert isinstance(constructed_dict, dict)
+    assert constructed_dict["rule_id"] == "github-pat"
+    assert constructed_dict["secret"] == GH_TOKEN
 
     # Test to_dict conversion
     d = f.to_dict()

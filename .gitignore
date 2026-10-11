@@ -21,6 +21,8 @@ src/betterleaks/libbetterleaks.h
 
 # Testing & Cache
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .coverage
 htmlcov/
 

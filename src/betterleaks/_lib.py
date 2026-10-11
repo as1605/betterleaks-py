@@ -4,6 +4,7 @@ import ctypes
 import json
 import os
 import platform
+import threading
 from typing import Any, Dict, Optional
 
 from betterleaks.models import BetterleaksError
@@ -74,7 +75,10 @@ class _BetterleaksBinding:
             raw_bytes = ctypes.cast(ptr, ctypes.c_char_p).value
             if not raw_bytes:
                 raise BetterleaksError("Empty response from Betterleaks library")
-            data = json.loads(raw_bytes.decode("utf-8"))
+            try:
+                data = json.loads(raw_bytes.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError) as err:
+                raise BetterleaksError(f"Failed to parse response from Betterleaks library: {err}") from err
             if not data.get("success", False):
                 err_msg = data.get("error", "Unknown scanning error")
                 raise BetterleaksError(err_msg)
@@ -103,10 +107,13 @@ class _BetterleaksBinding:
 
 
 _binding_instance: Optional[_BetterleaksBinding] = None
+_binding_lock = threading.Lock()
 
 
 def get_binding() -> _BetterleaksBinding:
     global _binding_instance
     if _binding_instance is None:
-        _binding_instance = _BetterleaksBinding()
+        with _binding_lock:
+            if _binding_instance is None:
+                _binding_instance = _BetterleaksBinding()
     return _binding_instance
