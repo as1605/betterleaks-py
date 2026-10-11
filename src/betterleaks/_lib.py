@@ -78,7 +78,9 @@ class _BetterleaksBinding:
             try:
                 data = json.loads(raw_bytes.decode("utf-8"))
             except (json.JSONDecodeError, UnicodeDecodeError) as err:
-                raise BetterleaksError(f"Failed to parse response from Betterleaks library: {err}") from err
+                raise BetterleaksError(
+                    f"Failed to parse response from Betterleaks library: {err}"
+                ) from err
             if not data.get("success", False):
                 err_msg = data.get("error", "Unknown scanning error")
                 raise BetterleaksError(err_msg)

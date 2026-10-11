@@ -80,7 +80,9 @@ class Finding(Mapping):
     tags: List[str] = field(default_factory=list)
     raw: Dict[str, Any] = field(default_factory=dict)
 
-    _EXCLUDED_KEYS: ClassVar[frozenset[str]] = frozenset({"from_dict", "to_dict", "raw"})
+    _EXCLUDED_KEYS: ClassVar[frozenset[str]] = frozenset(
+        {"from_dict", "to_dict", "raw"}
+    )
 
     @property
     def secret(self) -> str:
@@ -134,7 +136,11 @@ class Finding(Mapping):
             return self.secret
         if key == "file":
             return self.file
-        if hasattr(self, key) and not key.startswith("_") and key not in self._EXCLUDED_KEYS:
+        if (
+            hasattr(self, key)
+            and not key.startswith("_")
+            and key not in self._EXCLUDED_KEYS
+        ):
             val = getattr(self, key)
             if not callable(val):
                 if isinstance(val, (Match, Location)):
@@ -155,7 +161,11 @@ class Finding(Mapping):
             return False
         if key in ("secret", "file"):
             return True
-        if hasattr(self, key) and not key.startswith("_") and key not in self._EXCLUDED_KEYS:
+        if (
+            hasattr(self, key)
+            and not key.startswith("_")
+            and key not in self._EXCLUDED_KEYS
+        ):
             return not callable(getattr(self, key))
         return key in self.raw
 
