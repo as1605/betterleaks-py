@@ -22,14 +22,17 @@ def get_binary_path() -> str:
         )
 
     if sys.platform != "win32":
-        current_mode = binary.stat().st_mode
-        if not (current_mode & stat.S_IXUSR):
-            binary.chmod(
-                current_mode
-                | stat.S_IXUSR
-                | stat.S_IXGRP
-                | stat.S_IXOTH
-            )
+        try:
+            current_mode = binary.stat().st_mode
+            if not (current_mode & stat.S_IXUSR):
+                binary.chmod(
+                    current_mode
+                    | stat.S_IXUSR
+                    | stat.S_IXGRP
+                    | stat.S_IXOTH
+                )
+        except OSError:
+            pass
 
     return os.fspath(binary)
 
