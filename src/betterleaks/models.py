@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator, Mapping
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, ClassVar, Dict, List, Optional
 
 
 class BetterleaksError(Exception):
@@ -80,7 +80,7 @@ class Finding(Mapping):
     tags: List[str] = field(default_factory=list)
     raw: Dict[str, Any] = field(default_factory=dict)
 
-    _EXCLUDED_KEYS = {"from_dict", "to_dict", "raw"}
+    _EXCLUDED_KEYS: ClassVar[frozenset[str]] = frozenset({"from_dict", "to_dict", "raw"})
 
     @property
     def secret(self) -> str:
