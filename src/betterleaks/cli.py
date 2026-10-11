@@ -17,20 +17,14 @@ def get_binary_path() -> str:
 
     if not binary.exists():
         raise FileNotFoundError(
-            "Betterleaks CLI binary not found. "
-            "This wheel may not match your platform."
+            "Betterleaks CLI binary not found. This wheel may not match your platform."
         )
 
     if sys.platform != "win32":
         try:
             current_mode = binary.stat().st_mode
             if not (current_mode & stat.S_IXUSR):
-                binary.chmod(
-                    current_mode
-                    | stat.S_IXUSR
-                    | stat.S_IXGRP
-                    | stat.S_IXOTH
-                )
+                binary.chmod(current_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
         except OSError:
             pass
 
