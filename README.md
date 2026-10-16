@@ -151,6 +151,17 @@ finding.secret == finding["secret"]
 
 ---
 
+## Benchmarks
+
+`betterleaks-py` includes a benchmark suite in [`benchmarks/bench.py`](benchmarks/bench.py) comparing the in-process Python library against invoking the CLI binary via `subprocess`. In hot-run conditions (scanner kept warm in memory), the library is **1,000× – 10,000× faster** for small strings and **~280× faster** for batch file scanning, because the Go runtime and rule-compilation cost are paid only once. Even on a single cold start (fresh process, no warm-up), the library wins in **~92% of runs** with a mean latency of ~87 ms vs. ~104 ms for the subprocess approach. See [`benchmarks/benchmarks.md`](benchmarks/benchmarks.md) for full methodology, per-percentile statistics, and guidance on when to use the library vs. the standalone CLI.
+
+```bash
+python benchmarks/bench.py           # hot-run
+python benchmarks/bench.py --cold    # cold-run (fresh process per call, 100 iterations)
+```
+
+---
+
 ## Running Tests
 
 ```bash
