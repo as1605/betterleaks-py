@@ -27,7 +27,7 @@ jobs:
             os: macos-14         # Apple Silicon — native arm64, no GOARCH override needed
             cibw_arch: arm64
           - name: macos-x86_64
-            os: macos-13         # Intel — native x86_64, no GOARCH override needed
+            os: macos-15-intel   # Intel x86_64 (macos-13 retired Dec 2025) — no GOARCH override needed
             cibw_arch: x86_64
           - name: linux-x86_64
             os: ubuntu-latest
