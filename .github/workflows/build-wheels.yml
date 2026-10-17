@@ -21,16 +21,15 @@ jobs:
     permissions:
       contents: read
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: macos-arm64
-            os: macos-latest
+            os: macos-latest     # Apple Silicon arm64; arch can't shift so floating is fine
             cibw_arch: arm64
-            goarch: arm64
           - name: macos-x86_64
-            os: macos-latest
+            os: macos-15-intel   # Intel x86_64 (macos-13 retired Dec 2025) — no GOARCH override needed
             cibw_arch: x86_64
-            goarch: amd64
           - name: linux-x86_64
             os: ubuntu-latest
             cibw_arch: x86_64
@@ -49,6 +48,9 @@ jobs:
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version: '>=1.25'
+          cache-dependency-path: |
+            upstream/go.sum
+            wrapper/go.sum
 
       - name: Set up Python
         uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
@@ -63,6 +65,7 @@ jobs:
       - name: Build wheels
         run: python -m cibuildwheel --output-dir wheelhouse
         env:
+          MACOSX_DEPLOYMENT_TARGET: "12.0"
           CIBW_ARCHS_LINUX: ${{ matrix.cibw_arch }}
           CIBW_BEFORE_ALL_LINUX: >
             sh -c 'ARCH=$(uname -m);
@@ -73,7 +76,8 @@ jobs:
 
           CIBW_ARCHS_MACOS: ${{ matrix.cibw_arch }}
           CIBW_BEFORE_ALL_MACOS: "go version"
-          CIBW_ENVIRONMENT_MACOS: 'CGO_ENABLED=1 GOARCH=${{ matrix.goarch }}'
+          # GOARCH is implicit from the native runner — no override needed
+          CIBW_ENVIRONMENT_MACOS: 'CGO_ENABLED=1 MACOSX_DEPLOYMENT_TARGET=12.0'
 
           CIBW_BEFORE_ALL_WINDOWS: "go version"
           CIBW_ENVIRONMENT_WINDOWS: 'CGO_ENABLED=1'
@@ -82,7 +86,6 @@ jobs:
           CIBW_SKIP: "cp36-* cp37-* pp* *-win32 *-manylinux_i686 *musllinux*"
           CIBW_TEST_REQUIRES: "pytest"
           CIBW_TEST_COMMAND: "pytest {package}/tests"
-          CIBW_TEST_SKIP: "*-macosx_x86_64"
 
       - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
         with:

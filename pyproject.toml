@@ -42,6 +42,10 @@ dev = [
     "wheel",
 ]
 
+[project.scripts]
+betterleaks = "betterleaks.cli:main"
+gitleaks = "betterleaks.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/as1605/betterleaks-py"
 Repository = "https://github.com/as1605/betterleaks-py"
@@ -64,3 +68,6 @@ target-version = "py38"
 
 [tool.ruff.lint]
 ignore = ["UP006", "UP045", "FA100"]
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "12.0"
