@@ -68,3 +68,6 @@ target-version = "py38"
 
 [tool.ruff.lint]
 ignore = ["UP006", "UP045", "FA100"]
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "12.0"

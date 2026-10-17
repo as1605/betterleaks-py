@@ -10,6 +10,10 @@ from setuptools.command.build_py import build_py
 from setuptools.command.develop import develop
 from setuptools.dist import Distribution
 
+# Ensure minimum macOS deployment target compatible with modern Go (1.25+) toolchain
+if sys.platform == "darwin" and "MACOSX_DEPLOYMENT_TARGET" not in os.environ:
+    os.environ["MACOSX_DEPLOYMENT_TARGET"] = "12.0"
+
 
 def get_lib_filename() -> str:
     system = platform.system().lower()
