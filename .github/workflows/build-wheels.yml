@@ -124,7 +124,9 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     
     # Required for OIDC Trusted Publishing
-    environment: pypi
+    environment:
+      name: pypi
+      url: https://pypi.org/p/betterleaks
     permissions:
       id-token: write   # For PyPI OIDC Attestations
       contents: write   # For GitHub Releases (create release & upload assets)
