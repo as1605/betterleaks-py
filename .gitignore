@@ -25,6 +25,7 @@ src/betterleaks/libbetterleaks.h
 .mypy_cache/
 .coverage
 htmlcov/
+cold_results.json
 
 # OS
 .DS_Store

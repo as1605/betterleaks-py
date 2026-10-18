@@ -13,7 +13,7 @@
 | **Python library** (`betterleaks.scan_string` / `scan_file`) | The Go shared library (`libbetterleaks.so/.dylib/.dll`) is loaded **once** into the Python process via `ctypes`. The scanner engine, compiled regexes, and rule filters stay warm in memory across all subsequent calls. |
 | **CLI subprocess** (`subprocess.run(["betterleaks", ...])`) | Each call spawns a brand-new OS process: the Go runtime boots, all 100+ rules are parsed and compiled, the scan runs, results are serialised to JSON over stdout, and the process exits. |
 
-The benchmarks live in [`benchmarks/bench.py`](./bench.py).
+The benchmarks live in [`scripts/bench.py`](../scripts/bench.py).
 
 ---
 
@@ -34,7 +34,7 @@ go build -buildvcs=false \
 ### Hot-run benchmark (default)
 
 ```bash
-python benchmarks/bench.py
+python scripts/bench.py
 ```
 
 Measures repeated calls inside a **single warm process**.
@@ -43,13 +43,13 @@ Performs 2 warm-up calls before timing begins; GC is disabled during measurement
 ### Cold-run benchmark
 
 ```bash
-python benchmarks/bench.py --cold            # 100 iterations (default)
-python benchmarks/bench.py --cold --cold-runs 50
+python scripts/bench.py --cold            # 100 iterations (default)
+python scripts/bench.py --cold --cold-runs 50
 ```
 
 Every iteration is executed in a **brand-new, isolated OS process** (spawned via `subprocess.run([sys.executable, ...])`).
 Calls are interleaved (Library → Subprocess → Direct CLI) to prevent thermal or scheduler bias.
-Raw per-run data is saved to `benchmarks/cold_results.json` for further analysis.
+Raw per-run data is saved to `scripts/cold_results.json` for further analysis.
 
 ---
 

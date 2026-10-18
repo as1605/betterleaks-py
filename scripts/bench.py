@@ -7,8 +7,8 @@ Compares two execution modes:
   2. Subprocess CLI  – subprocess.run(["betterleaks", ...]) from Python
 
 Run modes:
-  python benchmarks/bench.py          # hot-run benchmark (default)
-  python benchmarks/bench.py --cold   # cold-run benchmark (fresh process per call)
+  python scripts/bench.py          # hot-run benchmark (default)
+  python scripts/bench.py --cold   # cold-run benchmark (fresh process per call)
 
 Requirements:
   - betterleaks installed in the active virtualenv
@@ -402,7 +402,7 @@ def run_cold_benchmark(num_runs: int = 100) -> None:
     )
 
     # Save raw data
-    out_path = os.path.join(_REPO_ROOT, "benchmarks", "cold_results.json")
+    out_path = os.path.join(_REPO_ROOT, "scripts", "cold_results.json")
     with open(out_path, "w") as fh:
         json.dump(
             {
