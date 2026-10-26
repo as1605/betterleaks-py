@@ -132,14 +132,14 @@ jobs:
       contents: write   # For GitHub Releases (create release & upload assets)
 
     steps:
-      - uses: actions/download-artifact@cc203385981b70ca67e1ab388640d18d72914e27 # v4.1.9
+      - uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
         with:
           pattern: cibw-*
           path: dist
           merge-multiple: true
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@c95fe1489396fe8a9ec87453c663f532452554ff # v2.2.1
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
         with:
           files: dist/*
           generate_release_notes: true
@@ -147,6 +147,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@76f52e157673a5dde997281b409722363be37b75 # v1.12.4
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
         with:
           attestations: true
