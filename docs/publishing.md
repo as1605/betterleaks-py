@@ -14,7 +14,7 @@ To enable GitHub Actions to publish packages to PyPI tokenlessly:
 2. Navigate to **Account Settings** -> **Publishing** ([pypi.org/manage/account/publishing/](https://pypi.org/manage/account/publishing/)).
 3. Scroll down to **"Add a publisher"** and select **GitHub**.
 4. Fill in the following details:
-   - **PyPI Project Name**: `betterleaks` *(if publishing the first time, you may register it as a pending publisher under your user account)*
+   - **PyPI Project Name**: `betterleaks-py` *(if publishing the first time, you may register it as a pending publisher under your user account)*
    - **Owner**: `as1605` (or the repository owner / organization)
    - **Repository name**: `betterleaks-py`
    - **Workflow name**: `build-wheels.yml`
@@ -72,7 +72,7 @@ flowchart LR
 
 ## 4. Triggering a Release
 
-To release a new version of `betterleaks`:
+To release a new version of `betterleaks-py`:
 
 1. Update the version string in [`src/betterleaks/__init__.py`](../src/betterleaks/__init__.py):
    ```python
@@ -91,7 +91,7 @@ To release a new version of `betterleaks`:
    ```
 4. Monitor the workflow execution under the **Actions** tab on GitHub. Once completed:
    - The release assets will be available on the GitHub Releases page.
-   - The package will be live on PyPI at [`https://pypi.org/project/betterleaks/`](https://pypi.org/project/betterleaks/).
+   - The package will be live on PyPI at [`https://pypi.org/project/betterleaks-py/`](https://pypi.org/project/betterleaks-py/).
 
 ---
 

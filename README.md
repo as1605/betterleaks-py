@@ -20,14 +20,18 @@ Python bindings for [Betterleaks](https://github.com/betterleaks/betterleaks), t
 
 ## Installation
 
-### Option 1: Pre-built Binary Wheels (Recommended — No Go required)
-
-Pre-compiled binary wheels for **Linux** (`x86_64`), **macOS** (Apple Silicon `arm64` & Intel `x86_64`), and **Windows** (`x86_64`) are built automatically via GitHub Actions and published under [GitHub Releases](https://github.com/as1605/betterleaks-py/releases).
-
-You can install directly without having Go or C compilers installed:
+### Option 1: Install from PyPI (Recommended — Pre-built wheels)
 
 ```bash
-pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.4 betterleaks
+pip install betterleaks-py
+```
+
+Pre-compiled binary wheels for **Linux** (`x86_64`), **macOS** (Apple Silicon `arm64` & Intel `x86_64`), and **Windows** (`x86_64`) are built automatically via GitHub Actions and published to [PyPI](https://pypi.org/project/betterleaks-py/) and [GitHub Releases](https://github.com/as1605/betterleaks-py/releases).
+
+Alternatively, you can install directly without having Go or C compilers installed from GitHub Releases:
+
+```bash
+pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.4 betterleaks-py
 ```
 
 You can also browse and download wheels directly from the [v2.0.0-rc.4 Release Page](https://github.com/as1605/betterleaks-py/releases/tag/v2.0.0-rc.4).

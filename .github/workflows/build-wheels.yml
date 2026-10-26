@@ -126,7 +126,7 @@ jobs:
     # Required for OIDC Trusted Publishing
     environment:
       name: pypi
-      url: https://pypi.org/p/betterleaks
+      url: https://pypi.org/p/betterleaks-py
     permissions:
       id-token: write   # For PyPI OIDC Attestations
       contents: write   # For GitHub Releases (create release & upload assets)

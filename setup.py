@@ -258,7 +258,9 @@ If Go is already installed, ensure its binary directory is in your PATH.
 (Common locations: /opt/homebrew/bin, /usr/local/bin, /usr/local/go/bin)
 
 Alternatively, install a pre-compiled binary wheel manually:
-  pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.4 betterleaks
+  pip install betterleaks-py
+  # or from GitHub Releases:
+  # pip install --find-links https://github.com/as1605/betterleaks-py/releases/expanded_assets/v2.0.0-rc.4 betterleaks-py
 ================================================================================
 """
         print(err_msg, file=sys.stderr)
