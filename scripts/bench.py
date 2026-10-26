@@ -36,7 +36,22 @@ from typing import Any, Callable, Dict, List, Optional
 # ── Constants ────────────────────────────────────────────────────────────────
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CLI_PATH = os.path.join(_REPO_ROOT, "src", "betterleaks", "bin", "betterleaks")
+
+
+def _find_cli_binary() -> str:
+    which_cli = shutil.which("betterleaks")
+    if which_cli:
+        return which_cli
+    for candidate in [
+        os.path.join(_REPO_ROOT, "cli", "src", "betterleaks_cli", "bin", "betterleaks"),
+        os.path.join(_REPO_ROOT, "src", "betterleaks", "bin", "betterleaks"),
+    ]:
+        if os.path.isfile(candidate):
+            return candidate
+    return os.path.join(_REPO_ROOT, "cli", "src", "betterleaks_cli", "bin", "betterleaks")
+
+
+CLI_PATH = _find_cli_binary()
 
 # Tokens constructed dynamically so static push-protection is not triggered.
 _GH_TOKEN = "gh" + "p_aB3dE5fG7hI9jK1mN3pQ5rS7tU9vW1xY3zA5"

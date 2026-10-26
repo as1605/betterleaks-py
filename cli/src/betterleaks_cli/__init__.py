@@ -1,10 +1,17 @@
-"""Python wrapper for the bundled Betterleaks binary."""
+"""Betterleaks CLI — standalone command-line secret scanner.
+
+This package ships only the compiled Go binary.
+For Python bindings (scan_string / scan_file), install ``betterleaks-py`` instead.
+"""
 
 import os
 import stat
 import subprocess
 import sys
 from pathlib import Path
+
+__version__ = "2.0.0"
+__upstream_version__ = "2.0.0-rc.4"
 
 
 def _binary_name() -> str:

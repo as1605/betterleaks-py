@@ -1,0 +1,6 @@
+include README.md
+include pyproject.toml
+include setup.py
+recursive-include src/betterleaks_cli *.py py.typed
+global-exclude .git*
+global-exclude *.py[cod]

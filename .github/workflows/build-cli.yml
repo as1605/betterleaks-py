@@ -1,0 +1,176 @@
+name: Build and Publish CLI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  build_cli:
+    name: Build CLI on ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            os: ubuntu-latest
+            wheel_plat: manylinux_2_17_x86_64
+          - name: linux-aarch64
+            os: ubuntu-24.04-arm
+            wheel_plat: manylinux_2_17_aarch64
+          - name: macos-arm64
+            os: macos-latest
+            wheel_plat: macosx_12_0_arm64
+          - name: macos-x86_64
+            os: macos-15-intel
+            wheel_plat: macosx_12_0_x86_64
+          - name: windows-x86_64
+            os: windows-latest
+            wheel_plat: win_amd64
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version: '>=1.25'
+          cache-dependency-path: upstream/go.sum
+
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: '3.11'
+
+      - name: Install build tools
+        run: python -m pip install build wheel twine
+
+      - name: Build CLI binary (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          mkdir -p cli/src/betterleaks_cli/bin
+          cd upstream
+          CGO_ENABLED=0 go build \
+            -ldflags "-X=github.com/betterleaks/betterleaks/v2/version.Version=2.0.0-rc.4" \
+            -o ../cli/src/betterleaks_cli/bin/betterleaks .
+          chmod +x ../cli/src/betterleaks_cli/bin/betterleaks
+
+      - name: Build CLI binary (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          New-Item -ItemType Directory -Force -Path cli\src\betterleaks_cli\bin
+          cd upstream
+          $env:CGO_ENABLED="0"
+          go build `
+            -ldflags "-X=github.com/betterleaks/betterleaks/v2/version.Version=2.0.0-rc.4" `
+            -o ..\cli\src\betterleaks_cli\bin\betterleaks.exe .
+
+      - name: Build wheel
+        working-directory: cli
+        run: python -m build --wheel
+
+      - name: Retag wheel (Unix)
+        if: runner.os != 'Windows'
+        working-directory: cli/dist
+        run: |
+          python -m wheel tags --platform-tag ${{ matrix.wheel_plat }} --python-tag py3 --abi-tag none *.whl
+          for f in *cp3*.whl; do [ -f "$f" ] && rm "$f"; done
+          ls -la *.whl
+          python -m twine check --strict *.whl
+
+      - name: Retag wheel (Windows)
+        if: runner.os == 'Windows'
+        working-directory: cli/dist
+        run: |
+          python -m wheel tags --platform-tag ${{ matrix.wheel_plat }} --python-tag py3 --abi-tag none (Get-ChildItem *.whl).Name
+          Get-ChildItem *cp3*.whl | Remove-Item
+          Get-ChildItem *.whl
+          python -m twine check --strict *.whl
+
+      - name: Test CLI execution (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          ./cli/src/betterleaks_cli/bin/betterleaks --version
+
+      - name: Test CLI execution (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          .\cli\src\betterleaks_cli\bin\betterleaks.exe --version
+
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: cli-wheels-${{ matrix.name }}
+          path: cli/dist/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: '3.11'
+
+      - name: Build sdist
+        working-directory: cli
+        run: pipx run build --sdist
+
+      - name: Check package metadata with twine
+        working-directory: cli
+        run: pipx run twine check --strict dist/*
+
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1 # v4.6.1
+        with:
+          name: cli-sdist
+          path: cli/dist/*.tar.gz
+
+  publish_cli:
+    name: Publish CLI to PyPI and GitHub Releases
+    needs: [build_cli, build_sdist]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    environment:
+      name: pypi-cli
+      url: https://pypi.org/p/betterleaks-cli
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@cc203385981b70ca67e1cc392babf9cc229d5806 # v4.1.9
+        with:
+          pattern: cli-*
+          path: dist
+          merge-multiple: true
+
+      - name: Attach CLI assets to GitHub Release
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+        with:
+          attestations: true

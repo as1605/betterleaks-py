@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "betterleaks-cli"
+dynamic = ["version"]
+description = "Standalone CLI for Betterleaks, the high-performance secret and credential detection engine."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [
+    { name = "Betterleaks Contributors" }
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Topic :: Security",
+    "Topic :: Software Development :: Quality Assurance",
+    "Programming Language :: Go",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Environment :: Console",
+]
+dependencies = []
+
+[project.scripts]
+betterleaks = "betterleaks_cli:main"
+gitleaks = "betterleaks_cli:main"
+
+[project.urls]
+Homepage = "https://github.com/as1605/betterleaks-py"
+Repository = "https://github.com/as1605/betterleaks-py"
+Issues = "https://github.com/as1605/betterleaks-py/issues"
+Changelog = "https://github.com/as1605/betterleaks-py/releases"
+
+[tool.setuptools.dynamic]
+version = {attr = "betterleaks_cli.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["betterleaks_cli*"]
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "12.0"
