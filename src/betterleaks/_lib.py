@@ -43,7 +43,7 @@ def _find_library() -> str:
     searched = [os.path.join(pkg_dir, n) for n in candidate_names]
     raise BetterleaksError(
         f"Could not find Betterleaks shared library. Searched: {searched}. "
-        "Please build the Go wrapper or set BETTERLEAKS_LIB_PATH."
+        "Please build the native Go library or set BETTERLEAKS_LIB_PATH."
     )
 
 

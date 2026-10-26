@@ -1,4 +1,4 @@
-module github.com/as1605/betterleaks-py/wrapper
+module github.com/as1605/betterleaks-py/native
 
 go 1.27.1
 

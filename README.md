@@ -5,6 +5,12 @@
 
 Python bindings for [Betterleaks](https://github.com/betterleaks/betterleaks), the ultra-fast secret and credential detection engine written in Go.
 
+> **Looking for the command-line tool?**  
+> If you want the standalone CLI executable for terminals, CI pipelines, or pre-commit hooks (`betterleaks git .`, `betterleaks filesystem`, `betterleaks stdin`), install [`betterleaks-cli`](https://pypi.org/project/betterleaks-cli/) instead:
+> ```bash
+> pip install betterleaks-cli
+> ```
+
 ---
 
 ## Features
@@ -142,7 +148,7 @@ finding.secret == finding["secret"]
 
 `betterleaks-py` uses a hybrid CGO + `ctypes` architecture designed for reliability and maximum performance:
 
-1. **Go Shared Library (`wrapper/cgo_wrapper.go`)**:
+1. **Go Shared Library (`native/cgo_wrapper.go`)**:
    - Compiles as a C-shared library (`libbetterleaks.so` / `.dylib` / `.dll`).
    - Exports a clean C ABI with thread-safe scanner caching.
    - Encapsulates findings into structured JSON payloads across the FFI boundary.

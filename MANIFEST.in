@@ -3,7 +3,7 @@ include LICENSE
 include pyproject.toml
 include setup.py
 
-recursive-include wrapper *.go *.mod *.sum
+recursive-include native *.go *.mod *.sum
 recursive-include upstream *
 recursive-include src/betterleaks *.py *.h py.typed
 global-exclude .git*

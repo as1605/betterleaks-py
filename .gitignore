@@ -13,11 +13,12 @@ env/
 venv/
 
 # Go compiled binaries and libraries
-wrapper/libbetterleaks.*
+native/libbetterleaks.*
 src/betterleaks/libbetterleaks.dylib
 src/betterleaks/libbetterleaks.so
 src/betterleaks/libbetterleaks.dll
 src/betterleaks/libbetterleaks.h
+cli/src/betterleaks_cli/bin/
 
 # Testing & Cache
 .pytest_cache/
